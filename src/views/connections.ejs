@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Connections</title>
+      <style>
+         /* Add your CSS styles here */
+      </style>
+      <link rel="stylesheet" href="./styles/style.css" />
+   </head>
+   <body>
+      <nav class="bg-gray-800">
+         <div class="max-w-7xl px-2 sm:px-6 lg:px-8">
+            <div class="relative flex h-16 items-center justify-between">
+               <div
+                  class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start"
+               >
+                  <div class="flex flex-shrink-0 items-center">
+                     <h1 class="text-xl text-white">
+                        Authority Revocation Interface
+                     </h1>
+                  </div>
+                  <div class="sm:ml-6 sm:block">
+                     <div class="flex space-x-4">
+                        <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+                        <a
+                           href="/connections"
+                           class="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
+                           aria-current="page"
+                           >Connections</a
+                        >
+                        <a
+                           href="/revocation"
+                           class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                           >Revocation</a
+                        >
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </nav>
+
+      <div class="container mx-auto px-4">
+         <div class="flex justify-between items-center mt-10 mb-4">
+            <div class="flex-1">
+               <!-- Empty div for spacing -->
+            </div>
+            <h1 class="text-3xl font-bold flex-1 text-center">
+               List of Connections
+            </h1>
+            <div class="flex-1 flex justify-end">
+               <button
+                  class="mr-2 bg-green-500 hover:bg-green-700 active:bg-green-800 active:transform active:scale-95 text-white font-semibold py-2 px-4 rounded transition duration-150 ease-in-out"
+                  onclick="document.getElementById('popup').style.display = 'flex'"
+               >
+                  Add connection
+               </button>
+               <button
+                  class="bg-blue-500 hover:bg-blue-700 active:bg-blue-800 active:transform active:scale-95 text-white font-semibold py-2 px-4 rounded transition duration-150 ease-in-out"
+                  onclick="document.getElementById('popup2').style.display = 'flex'"
+               >
+                  Create invitation
+               </button>
+            </div>
+         </div>
+      </div>
+      <div class="mx-20">
+         <ul role="list" class="divide-y-2 divide-white">
+            <% connections.forEach(connection => { %>
+            <li
+               class="flex justify-between gap-x-6 py-5 bg-gray-200 bg-opacity-75 px-4 rounded leading-6 items-center"
+            >
+               <div class="flex min-w-0 gap-x-4">
+                  <div class="min-w-0 flex-auto">
+                     <p class="text-base font-bold text-gray-900">
+                        <%= connection.their_label %>
+                     </p>
+                  </div>
+               </div>
+               <div class="flex flex-row items-end">
+                  <button
+                     class="mr-2 bg-blue-500 hover:bg-blue-700 active:bg-blue-800 active:transform active:scale-95 text-white font-semibold py-2 px-4 rounded transition duration-150 ease-in-out"
+                     onclick="copyToClipboard('<%= connection.connection_id %>')"
+                  >
+                     Copy Connection ID
+                  </button>
+                  <button
+                     class="mr-2 bg-green-500 hover:bg-green-700 active:bg-green-800 active:transform active:scale-95 text-white font-semibold py-2 px-4 rounded transition duration-150 ease-in-out"
+                     onclick="copyToClipboard('<%= connection.invitation_msg_id %>')"
+                  >
+                     Copy Invitation Message ID
+                  </button>
+                  <form method="POST" action="/connections/delete">
+                     <input
+                        type="hidden"
+                        name="connection_id"
+                        value="<%= connection.connection_id %>"
+                     />
+                     <button
+                        class="bg-red-500 hover:bg-red-700 active:bg-red-800 active:transform active:scale-95 text-white font-semibold py-2 px-4 rounded transition duration-150 ease-in-out"
+                        type="submit"
+                     >
+                        Delete
+                     </button>
+                  </form>
+               </div>
+            </li>
+            <% }) %>
+         </ul>
+      </div>
+
+      <div
+         id="popup"
+         onclick="closePopup()"
+         style="
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background-color: #222222aa;
+            width: 100vw;
+            height: 100vh;
+            transform: translateY(-50%) translateX(-50%);
+         "
+      >
+         <div
+            style="
+               margin: auto;
+               height: 500px;
+               width: 400px;
+               background-color: white;
+               position: relative;
+            "
+            onclick="event.stopPropagation()"
+         >
+            <div class="mx-8 mt-4">
+               <h2 class="font-bold">Add new connection below</h2>
+               <button
+                  onclick="closePopup()"
+                  class="font-bold"
+                  style="position: absolute; top: 10px; right: 10px"
+               >
+                  X
+               </button>
+               <div class="block">
+                  <form action="/add-connection" method="POST">
+                     <textarea
+                        name="conn_json"
+                        id="conn-json"
+                        class="w-full h-32 p-2 border border-gray-300 rounded-md resize-none"
+                     ></textarea>
+                     <button
+                        class="bg-green-500 hover:bg-green-700 active:bg-green-800 active:transform active:scale-95 text-white font-semibold py-2 px-4 rounded transition duration-150 ease-in-out"
+                        type="submit"
+                     >
+                        Add Connection
+                     </button>
+                  </form>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div
+         id="popup2"
+         onclick="closePopup2()"
+         style="
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background-color: #222222aa;
+            width: 100vw;
+            height: 100vh;
+            transform: translateY(-50%) translateX(-50%);
+         "
+      >
+         <div
+            style="
+               margin: auto;
+               height: 500px;
+               width: 400px;
+               background-color: white;
+               position: relative;
+            "
+            onclick="event.stopPropagation()"
+         >
+            <div class="mx-8 mt-4">
+               <h2 class="font-bold">Below is the invitation JSON</h2>
+               <button
+                  onclick="closePopup2()"
+                  class="font-bold"
+                  style="position: absolute; top: 10px; right: 10px"
+               >
+                  X
+               </button>
+               <div class="block">
+                  <button
+                     class="w-full bg-green-500 hover:bg-green-700 active:bg-green-800 active:transform active:scale-95 text-white font-semibold py-2 px-4 rounded transition duration-150 ease-in-out"
+                     onclick="copyInvitation()"
+                     type="button"
+                  >
+                     Copy JSON
+                  </button>
+                  <p
+                     id="connection-json"
+                     name="connection_json"
+                     class="p-2 bg-gray-100"
+                     style="overflow-y: scroll; width: 100%"
+                  >
+                     <%= invitation? invitation: "JSON missing, please resubmit"
+                     + " your SSO request" %>
+                  </p>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <script>
+         async function copyInvitation() {
+            const connectionJson = document.getElementById("connection-json");
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(connectionJson);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            document.execCommand("copy");
+            selection.removeAllRanges();
+            alert("JSON copied to clipboard");
+         }
+         function copyToClipboard(text) {
+            navigator.clipboard
+               .writeText(text)
+               .then(() => {
+                  alert("Copied to clipboard:", text);
+               })
+               .catch((err) => {
+                  alert("Failed to copy to clipboard:", err);
+               });
+         }
+         function closePopup() {
+            document.getElementById("popup").style.display = "none";
+         }
+         function closePopup2() {
+            document.getElementById("popup2").style.display = "none";
+         }
+      </script>
+   </body>
+</html>
